@@ -4,8 +4,8 @@ class AdminFunct{
 	public function __construct() {
 		$this->conn = new Connection;
 		$this->conn = $this->conn->connect();
-		/*$this->conn->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );*/
-		error_reporting(0);
+		$this->conn->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );
+	
 	}
 	/**************** GENERAL ****************/
 	public function insertLogs($log_event, $log_desc){
@@ -835,7 +835,7 @@ class AdminFunct{
 		return $sql;
 	}
 	public function section() {
-		$sql = $this->conn->prepare("SELECT sec_id, sec_name, grade_lvl FROM Section");
+		$sql = $this->conn->prepare("SELECT sec_id, sec_name, grade_lvl FROM Section WHERE fac_idv IS NULL");
 		$sql->execute();
 		while ($row = $sql->fetch()) {
 			echo "<option value='" . $row['sec_id'] . "'>".$row['grade_lvl']." - " . $row['sec_name'] . "</option>";
@@ -849,7 +849,7 @@ class AdminFunct{
 		}
 	}
 	public function faculty_id() {
-		$query = $this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, fac_id FROM Faculty");
+		$query = $this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, fac_id FROM Faculty WHERE fac_adviser='Yes'");
 		$query->execute();
 		$facultyname = array();
 		while ($row = $query->fetch()) {
@@ -858,7 +858,7 @@ class AdminFunct{
 		return $faculty_id;
 	}
 	public function facultyname() {
-		$query = $this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, fac_id FROM Faculty");
+		$query = $this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, fac_id FROM Faculty WHERE fac_adviser='Yes'");
 		$query->execute();
 		$facultyname = array();
 		while ($row = $query->fetch()) {
@@ -941,6 +941,15 @@ class AdminFunct{
 	}	
 	public function updateClass($sec_id, $fac_idv){
 		try {
+			$getPrevID=$this->conn->prepare("SELECT * FROM section JOIN faculty on fac_id=fac_idv WHERE sec_id=?");
+			$getPrevID->bindParam(1, $sec_id);
+			$getPrevID->execute();
+			$rowgetPrevID = $getPrevID->fetch();
+			$prevSecID = $rowgetPrevID['sec_id'];
+			$prevFacID = $rowgetPrevID['fac_id'];
+			/*var_dump($prevSecID);
+			var_dump($prevFacID);*/
+			
 			$sql=$this->conn->prepare("UPDATE Section 
 			SET  fac_idv=:fac_idv
 			WHERE sec_id=:sec_id");
@@ -956,7 +965,6 @@ class AdminFunct{
 				$sec_name = $row1['sec_name'];
 				$section_id = $row1['sec_id'];
 				$faculty_id = $row1['fac_id'];
-				/*var_dump($faculty_id);*/
 				$sql3=$this->conn->prepare("SELECT * FROM section JOIN schedule ON sched_yrlevel=grade_lvl WHERE fac_idv=:fac_idv");
 				$sql3->execute(array(
 					':fac_idv' => $fac_idv,
@@ -970,31 +978,74 @@ class AdminFunct{
 				$row3=$sql4->fetch();
 				$schedsubjb_id = $row3['subj_id'];
 				
+				$querySearch = $this->conn->prepare("SELECT * FROM schedsubj WHERE fw_id=:faculty_id AND sw_id=:sec_id");
+				$querySearch->execute(array(
+					':faculty_id' => $prevFacID,
+					':sec_id' => $prevSecID
+				));
 				$day='Monday,Tuesday,Wednesday,Thursday,Friday';
 				$time_start='07:40:00';
 				$time_end='08:40:00';
-				$sql6=$this->conn->prepare("UPDATE schedsubj SET schedsubja_id=:schedsubja_id, schedsubjb_id=:schedsubjb_id, day=:day,time_start=:time_start, time_end=:time_end, fw_id=:fw_id, sw_id=:sw_id WHERE sw_id=:sw_id");
-				$sql6->execute(array(
-					':schedsubja_id' => $schedsubja_id,
-					':schedsubjb_id' => $schedsubjb_id,
-					':day' => $day,
-					':time_start' =>$time_start,
-					':time_end' =>$time_end,
-					':fw_id' => $fac_idv,
-					':sw_id' => $sec_id,
-					':sw_id' => $sec_id
-				));
-				$sql7=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, sec_name, grade_lvl FROM section JOIN faculty on fac_id=fac_idv WHERE fac_idv=?");
-				$sql7->bindParam(1, $fac_idv);				
-				$sql7->execute(); 
-				$row7=$sql7->fetch(PDO::FETCH_ASSOC);
-				$sec_adviser=$row7['facultyname'];
-				$sec_name =$row7['sec_name'];
-				$grade_lvl=$row7['grade_lvl'];
+				
+				if($querySearch->rowCount()>0){
+					$delete_schedsubj = $this->conn->prepare("DELETE FROM schedsubj WHERE fw_id=:fw_id AND sw_id=:sw_id");
+					$delete_schedsubj->execute(array(
+						':fw_id' => $prevFacID,
+						':sw_id' => $prevSecID
+					)) or die("FAILED");
+					
+					$sql6=$this->conn->prepare("INSERT INTO schedsubj SET schedsubja_id=:schedsubja_id, schedsubjb_id=:schedsubjb_id, day=:day,time_start=:time_start, time_end=:time_end, fw_id=:fw_id, sw_id=:sw_id");
+					/*var_dump($sec_id);
+					var_dump($fac_idv);
+					var_dump($schedsubja_id);
+					var_dump($schedsubjb_id);*/
+					$sql6->execute(array(
+						':schedsubja_id' => $schedsubja_id,
+						':schedsubjb_id' => $schedsubjb_id,
+						':day' => $day,
+						':time_start' =>$time_start,
+						':time_end' =>$time_end,
+						':fw_id' => $fac_idv,
+						':sw_id' => $sec_id	
+					));
+					$delete_allfacsec = $this->conn->query("DELETE FROM facsec");
+					$getFWSW = $this->conn->query("SELECT fw_id, sw_id FROM schedsubj");
+					$result = $getFWSW->fetchAll();
+					foreach ($result as $row) {
+						$sql = $this->conn->prepare("INSERT INTO facsec (fac_idy, sec_idy) VALUES (:fw_id, :sw_id)");
+						$sql->execute(array(
+							':fw_id' => $row['fw_id'],
+							':sw_id' => $row['sw_id']
+						));
+					}
+				}else{
+					$sql7=$this->conn->prepare("INSERT INTO schedsubj SET schedsubja_id=:schedsubja_id, schedsubjb_id=:schedsubjb_id, day=:day,time_start=:time_start, time_end=:time_end, fw_id=:fw_id, sw_id=:sw_id");
+					/*var_dump($sec_id);
+					var_dump($fac_idv);
+					var_dump($schedsubja_id);
+					var_dump($schedsubjb_id);*/
+					$sql7->execute(array(
+						':schedsubja_id' => $schedsubja_id,
+						':schedsubjb_id' => $schedsubjb_id,
+						':day' => $day,
+						':time_start' =>$time_start,
+						':time_end' =>$time_end,
+						':fw_id' => $fac_idv,
+						':sw_id' => $sec_id	
+					));
+				
+				}
+				$sql8=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, sec_name, grade_lvl FROM section JOIN faculty on fac_id=fac_idv WHERE fac_idv=?");
+				$sql8->bindParam(1, $fac_idv);				
+				$sql8->execute(); 
+				$row8=$sql8->fetch(PDO::FETCH_ASSOC);
+				$sec_adviser=$row8['facultyname'];
+				$sec_name =$row8['sec_name'];
+				$grade_lvl=$row8['grade_lvl'];
 				$log_event="Update";
 				$log_desc="Updated ".$sec_adviser." as an adviser in Grade: ".$grade_lvl.", Section: ".$sec_name;
 				$this->insertLogs($log_event, $log_desc);
-				$this->alert("Success!", "Class has been updtaed", "success", "admin-classes");
+				$this->alert("Success!", "Class has been updated", "success", "admin-classes");
 			}else{
 				$this->alert("Error!", "Failed to update class!", "error", "admin-classes");
 			}

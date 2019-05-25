@@ -35,7 +35,7 @@ textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important
 .custPad2{padding: 0px 8px 0px 20px !important;}
 .longText{white-space: unset !important; text-align: justify;}
 .longTitle{white-space: unset !important; width: 250px}
-.admin-table, .admin-table-withScroll, #ptaTable, #noFilterTable, #admin-table-balstatus, #admin-table-payhist, #historyDataTable, #admin-table-enrolled{width: 100% !important}
+#admin-table, #admin-table-withScroll, #ptaTable, #noFilterTable, #admin-table-balstatus, #admin-table-payhist, #historyDataTable, #admin-table-enrolled{width: 100% !important}
 /* tooltip */
 .tooltip {position: relative;display: inline-block;}
 .tooltip .tooltiptext {visibility: hidden;width: 68px;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;z-index: 1;bottom: 150%;left: 50%;margin-left: -39px;}

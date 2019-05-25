@@ -23,7 +23,7 @@
 						
 					</div>
 					<div class="cont2">
-						<table class="admin-table-withScroll" class="display">
+						<table id="admin-table-withScroll" class="display">
 							<thead>
 								<tr>
 									<th>LRN No.</th>

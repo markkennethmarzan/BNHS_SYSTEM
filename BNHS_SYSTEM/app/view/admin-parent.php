@@ -186,7 +186,7 @@ echo '
 					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
 				</div>
 				<div class="widgetContent parentContent">
-					<table class="admin-table-withScroll" class="display">
+					<table id="admin-table-withScroll" class="display">
 						<thead>
 							<tr>
 								<th class="tleft">Parent Name</th>

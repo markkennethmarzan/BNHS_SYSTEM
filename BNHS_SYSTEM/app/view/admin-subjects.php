@@ -58,7 +58,7 @@
 						</div>
 					</div>
 					<div class="cont2">
-						<table class="admin-table" class="stripe row-border order-column">
+						<table id="admin-table" class="stripe row-border order-column" class="display">
 							<thead>
 								<tr>
 									<th class="tleft custPad">Subject Level</th>

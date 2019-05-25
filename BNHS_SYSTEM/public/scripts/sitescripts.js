@@ -561,7 +561,7 @@ $( ".datepickerAdmin" ).datepicker({
 $('#ptaTable').DataTable();
 	
 $("#noFilterTable").DataTable({
-		dom: "lBfrtip",
+	dom: "lBfrtip",
 	"paging":   false,
   	"ordering": false,
 	buttons: [
@@ -573,24 +573,20 @@ $( "#eventDataTable, #announcementDataTable, #historyDataTable" ).DataTable({
 	"paging":   false,
   	"ordering": false,
   	"info": false,
-	 buttons: false,
-	 "searching":false
+	buttons: false,
+	"searching":false
 });
 
-$( "#stud-list, .admin-table, .admin-table-withScroll" ).DataTable({
+$( "#stud-list, #admin-table, #admin-table-withScroll" ).DataTable({
 	"scrollX": true,
 	dom: "lBfrtip",
-	fixedColumns: {
-  		leftColumns: 1
-   	},
 	buttons: [
-   	'copy','excel','pdf', 'csv','print'
+   		'copy','excel','pdf', 'csv','print'
 	],
 	"lengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
 	
 });
-
-$('#calendarAdmin').fullCalendar({
+	var calendarAdmin = $('#calendarAdmin').fullCalendar({
 	editable:true,
 	header:{
 		left:'prev,next today',
@@ -612,7 +608,7 @@ $('#calendarAdmin').fullCalendar({
 			type:"POST",
 			data:{title:title, start:start, end:end, id:id},
 			success:function(){
-				calendar.fullCalendar('refetchEvents');
+				calendarAdmin.fullCalendar('refetchEvents');
 				alert('Event Update');
 			}
 		})
@@ -630,12 +626,12 @@ $('#calendarAdmin').fullCalendar({
 			data:{title:title, start:start, end:end, id:id},
 			success:function()
 			{
-				calendar.fullCalendar('refetchEvents');
-				alert("Event Updated");
+				calendarAdmin.fullCalendar('refetchEvents');
+				alert("Event Updated");	
 			}
 		});
 	},
-
+	
 	eventClick:function(event)
 	{
 		if(confirm("Are you sure you want to remove it?"))
@@ -647,7 +643,7 @@ $('#calendarAdmin').fullCalendar({
 				data:{id:id},
 				success:function()
 				{
-					calendar.fullCalendar('refetchEvents');
+					calendarAdmin.fullCalendar('refetchEvents');
 					alert("Event Removed");
 				}
 			})
@@ -675,9 +671,6 @@ $( '#faculty_home .contentpage .widget .studentContent .cont .filtStudTable' ).c
 var adminTable = $('#admin-table-balstatus').DataTable({
 	"scrollX": true,
 	dom: "lBfrtip",
-	fixedColumns: {
-  		leftColumns: 1
-   	},
 	"columnDefs" : [{
 		"targets" : [7],
 		"visible" : false
@@ -697,9 +690,6 @@ $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.yea
 var adminTable3 = $('#admin-table-enrolled').DataTable({
 	"scrollX": true,
 	dom: "lBfrtip",
-	fixedColumns: {
-  		leftColumns: 1
-   	},
 	"columnDefs" : [{
 		"targets" : [8],
 		"visible" : false
@@ -714,9 +704,6 @@ $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.yea
 var adminTable4 = $('#admin-table-payhist').DataTable({
 	"scrollX": true,
 	dom: "lBfrtip",
-	fixedColumns: {
-  		leftColumns: 1
-   	},
 	"columnDefs" : [{
 		"targets" : [8],
 		"visible" : false
@@ -733,14 +720,14 @@ $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.log
 	adminTable5.column(2).search(val5 ? val5 : '', true, false).draw();
 });
 
-getCurrentSection('sec1');
+getCurrentSection1('sec1');
 
 $('.admin-faculty-page #getCurrentLevel').on('change', function() {
 	var val = $(this).val();
-	getCurrentSection(val);
+	getCurrentSection1(val);
 });
 
-function getCurrentSection(value) {
+function getCurrentSection1(value) {
 var showThis = '.admin-faculty-page .table-scroll #'+value;
 var hideThis = '.admin-faculty-page .table-scroll .classes-edit:not(#'+value+')';
 $(hideThis).each(function() {

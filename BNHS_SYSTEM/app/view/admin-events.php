@@ -56,7 +56,7 @@
 						</div>
 					</div>
 					<div class="cont2"> 
-						<table class="admin-table" class="display">
+						<table id="admin-table" class="display">
 							<thead>
 								<tr>
 									<th class="tleft">Title</th>
@@ -177,7 +177,7 @@
 						</div>
 					</div>
 					<div class="cont2">
-						<table class="admin-table-withScroll" class="display" width="100%">
+						<table id="admin-table-withScroll" class="display" width="100%">
 							<thead>
 								<tr>
 									<th class="tleft">Announcement</th>

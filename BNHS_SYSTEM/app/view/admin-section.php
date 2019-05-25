@@ -45,7 +45,7 @@
 						</div>
 					</div>
 					<div class="cont2">
-						<table class="admin-table" class="display">
+						<table id="admin-table" class="display">
 							<thead>
 								<tr>
 									<th class="tleft custPad">Section Name</th>
